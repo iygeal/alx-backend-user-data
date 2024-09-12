@@ -1,14 +1,44 @@
 #!/usr/bin/env python3
 """
-This module provides a logger with field redaction for sensitive information.
+This module provides a logger with field redaction for sensitive information
+and a database connector that fetches credentials from environment variables.
 """
 
 import logging
+import os
+import mysql.connector
 from typing import List
 
 
 # Define the fields considered as PII (Personally Identifiable Information)
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
+
+
+def get_db() -> mysql.connector.connection.MySQLConnection:
+    """
+    Returns a connector to the database using credentials
+    from environment vars.
+
+    The connection details are fetched from environment variables:
+    PERSONAL_DATA_DB_USERNAME, PERSONAL_DATA_DB_PASSWORD,
+    PERSONAL_DATA_DB_HOST, PERSONAL_DATA_DB_NAME.
+
+    Returns:
+        MySQLConnection: A connection to the MySQL database.
+    """
+    # Fetch environment variables for the database connection
+    db_username = os.getenv("PERSONAL_DATA_DB_USERNAME", "root")
+    db_password = os.getenv("PERSONAL_DATA_DB_PASSWORD", "")
+    db_host = os.getenv("PERSONAL_DATA_DB_HOST", "localhost")
+    db_name = os.getenv("PERSONAL_DATA_DB_NAME")
+
+    # Connect to the database
+    return mysql.connector.connect(
+        user=db_username,
+        password=db_password,
+        host=db_host,
+        database=db_name
+    )
 
 
 def filter_datum(fields: List[str], redaction: str, message: str,
