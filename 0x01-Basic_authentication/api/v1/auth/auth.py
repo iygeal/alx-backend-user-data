@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""This module handles authentication for the API"""
+"""This module handles basic authentication for the API"""
 
 from flask import request
 from typing import List, TypeVar
@@ -10,7 +10,7 @@ class Auth:
 
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
         """Determines if authentication is required for a given path.
-        Returns TRue if the path is not in the excluded_paths
+        Returns True if the path is not in the excluded_paths
         """
         if path is None:
             return True
@@ -22,7 +22,7 @@ class Auth:
         # trailing slashes
         path = path.rstrip('/')
 
-        # Check if the path (with or without trailing slahs)
+        # Check if the path (with or without trailing slash)
         # is in excluded_paths
         for excluded_path in excluded_paths:
             if excluded_path.rstrip('/') == path:
@@ -34,6 +34,7 @@ class Auth:
         """Retrieves the authorization header from a request.
         """
         return None
+
     def current_user(self, request=None) -> TypeVar('User'):
         """Retrieves the current user from a request."""
         return None
