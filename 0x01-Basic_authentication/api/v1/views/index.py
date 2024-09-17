@@ -26,7 +26,7 @@ def stats() -> str:
     return jsonify(stats)
 
 
-@app_views.route('/api/v1/unauthorized', strict_slashes=False)
+@app_views.route('/unauthorized', strict_slashes=False)
 def unauthorized() -> str:
     """This route triggers the 401 error"""
     abort(401)
