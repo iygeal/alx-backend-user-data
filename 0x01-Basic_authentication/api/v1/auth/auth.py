@@ -9,13 +9,31 @@ class Auth:
     """Template which handles authentication for the API"""
 
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """Determines if authentication is required for a given path."""
-        return False
+        """Determines if authentication is required for a given path.
+        Returns TRue if the path is not in the excluded_paths
+        """
+        if path is None:
+            return True
+
+        if not excluded_paths or len(excluded_paths) == 0:
+            return True
+
+        # Ensure both path and excluded_paths are handled with or without
+        # trailing slashes
+        path = path.rstrip('/')
+
+        # Check if the path (with or without trailing slahs)
+        # is in excluded_paths
+        for excluded_path in excluded_paths:
+            if excluded_path.rstrip('/') == path:
+                return False
+
+        return True
 
     def authorization_header(self, request=None) -> str:
-        """Retrieves the authorization header from a request."""
+        """Retrieves the authorization header from a request.
+        """
         return None
-
     def current_user(self, request=None) -> TypeVar('User'):
         """Retrieves the current user from a request."""
         return None
