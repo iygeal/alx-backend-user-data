@@ -13,6 +13,14 @@ app = Flask(__name__)
 app.register_blueprint(app_views)
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 
+auth = None
+auth_type = getenv('AUTH_TYPE', None)
+
+# Initialize auth instance based on AUTH_TYPE
+if auth_type == 'auth':
+    from api.v1.auth.auth import Auth
+    auth = Auth()
+
 
 @app.errorhandler(404)
 def not_found(error) -> str:
@@ -31,6 +39,30 @@ def unauthorized_error(error) -> str:
 def forbidden_error(error) -> str:
     """Custom error handler for 403 status code."""
     return jsonify({"error": "Forbidden"}), 403
+
+
+@app.before_request
+def before_request() -> str:
+    """This method runs before each request to secure the API"""
+
+    if auth is None:
+        return
+
+    # Define paths that don't require authentication
+    excluded_paths = ['/api/v1/status/',
+                      '/api/v1/unauthorized/', '/api/v1/forbidden/']
+
+    # Check if the request path requires authentication
+    if not auth.require_auth(request.path, excluded_paths):
+        return
+
+    # Check if the Authorization header exists
+    if auth.authorization_header(request) is None:
+        abort(401)  # Unauthorized
+
+    # Check if the current user is authenticated
+    if auth.current_user(request) is None:
+        abort(403)  # Forbidden
 
 
 if __name__ == "__main__":
