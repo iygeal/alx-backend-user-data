@@ -3,7 +3,6 @@
 """
 from api.v1.auth.auth import Auth
 import base64
-from models.user import User
 from typing import TypeVar
 
 
@@ -96,10 +95,12 @@ class BasicAuth(Auth):
         if user_pwd is None or not isinstance(user_pwd, str):
             return None
 
+        from models.user import User
+
         # Search for user in the database based on email
         user_list = User.search({"email": user_email})
 
-        if not user_list or len(user_list) == 0:
+        if not user_list:
             return None
 
         # Assume the first user is the correct one
