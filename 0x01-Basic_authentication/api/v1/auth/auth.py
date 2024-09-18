@@ -8,25 +8,38 @@ from typing import List, TypeVar
 class Auth:
     """Template which handles authentication for the API"""
 
-    def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """Determines if authentication is required for a given path.
-        Returns True if the path is not in the excluded_paths
+    def require_auth(self, path: str, excluded_paths: list) -> bool:
         """
-        if path is None:
+        Determines if a given path requires authentication.
+
+        Args:
+            path (str): The path to check.
+            excluded_paths (list): A list of paths that are excluded from
+                                authentication, which can include
+                                wildcards (*).
+
+        Returns:
+            bool: True if authentication is required,
+            False if the path is excluded.
+        """
+        if path is None or excluded_paths is None or len(excluded_paths) == 0:
             return True
 
-        if not excluded_paths or len(excluded_paths) == 0:
-            return True
+        # Normalize the path (ensure it has no trailing slash)
+        if path[-1] != '/':
+            path += '/'
 
-        # Ensure both path and excluded_paths are handled with or without
-        # trailing slashes
-        path = path.rstrip('/')
-
-        # Check if the path (with or without trailing slash)
-        # is in excluded_paths
         for excluded_path in excluded_paths:
-            if excluded_path.rstrip('/') == path:
-                return False
+            # Check if excluded_path ends with '*' (wildcard)
+            if excluded_path.endswith('*'):
+                # Remove the '*' and compare with
+                # the start of the requested path
+                if path.startswith(excluded_path[:-1]):
+                    return False
+            else:
+                # If exact match, return False (no authentication required)
+                if path == excluded_path:
+                    return False
 
         return True
 
