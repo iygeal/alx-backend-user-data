@@ -2,6 +2,7 @@
 """ This module handles session authentication for the API """
 from api.v1.auth.auth import Auth
 from uuid import uuid4
+from models.user import User
 
 
 class SessionAuth(Auth):
@@ -45,3 +46,20 @@ class SessionAuth(Auth):
             return None
 
         return self.user_id_by_session_id.get(session_id)
+
+    def current_user(self, request=None) -> str:
+        """Returns a User instance based on a cookie value"""
+
+        # Get session ID from cookie
+        session_id = self.session_cookie(request)
+
+        if session_id is None:
+            return None
+
+        # Get user ID based on the session ID
+        user_id = self.user_id_for_session_id(session_id)
+
+        if user_id is None:
+            return None
+
+        return User.get(user_id)  # Get User instance based on user ID
