@@ -32,6 +32,7 @@ class SessionDBAuth(SessionExpAuth):
             all_sessions = UserSession.all()
             for session in all_sessions:
                 if session.session_id == session_id:
+                    # Check if the session has expired
                     if self.session_duration <= 0:
                         return session.user_id
                     created_at = session.created_at
@@ -39,7 +40,7 @@ class SessionDBAuth(SessionExpAuth):
                             seconds=self.session_duration) < datetime.now():
                         return None
                     return session.user_id
-        except FileNotFoundError:
+        except (FileNotFoundError, KeyError):
             return None
 
         return None
@@ -59,8 +60,12 @@ class SessionDBAuth(SessionExpAuth):
             new_sessions = [
                 session for session in all_sessions
                 if session.session_id != session_id]
+
+            if len(new_sessions) == len(all_sessions):  # No session found
+                return False
+
             # Save updated sessions to the file
             UserSession.save_to_file(new_sessions)
             return True
-        except FileNotFoundError:
+        except (FileNotFoundError, KeyError):
             return False
