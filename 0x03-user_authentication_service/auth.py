@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Auth module that handles authentication related tasks"""
+"""Auth module that handles authentication related tasks
+"""
 
 import bcrypt
 
@@ -15,9 +16,9 @@ def _hash_password(password: str) -> bytes:
         bytes: The hashed password
     """
     # Generate a salt
-    salt = bcrypt.gensalt()
+    salt: bytes = bcrypt.gensalt()
 
     # Hash the password usin the generated salt
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    hashed_password: bytes = bcrypt.hashpw(password.encode('utf-8'), salt)
 
     return hashed_password
