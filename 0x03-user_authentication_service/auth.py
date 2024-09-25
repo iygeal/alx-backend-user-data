@@ -33,27 +33,17 @@ class Auth:
 
     def register_user(self, email: str, password: str) -> User:
         """
-        Registers a user with the given email and password.
-
-        Args:
-            email (str): The user's email.
-            password (str): The user's password.
-
-        Returns:
-            User: The newly created User object.
-
-        Raises:
-            ValueError: If the user already exists with the given email.
+        Registers user email
         """
         try:
-            existing_user = self._db.find_user_by(email=email)
-            if existing_user:
+            user = self._db.find_user_by(email=email)
+            if user is not None:
                 raise ValueError(f"User {email} already exists")
         except NoResultFound:
-            hashed_password = self._hash_password(password)
+            hashed_password = _hash_password(password)
             return self._db.add_user(email, hashed_password)
         except InvalidRequestError:
-            raise ValueError("Invalid email or password")
+            raise ValueError("Invalid email")
 
     def valid_login(self, email: str, password: str) -> bool:
         """Check if login credentials are valid.
