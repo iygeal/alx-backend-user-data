@@ -78,6 +78,6 @@ class Auth:
                     'utf-8'), user.hashed_password.encode('utf-8')):
                 return True
             return False
-        except NoResultFound:
+        except Exception:
             # Return Flase if no user is found with the provided email
             return False
