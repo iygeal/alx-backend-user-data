@@ -6,8 +6,27 @@ import bcrypt
 from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
-import uuid
-from sqlalchemy.exc import InvalidRequestError
+from uuid import uuid4
+
+
+def _hash_password(password: str) -> bytes:
+    """Hashes a password using bcrypt's hashing algo and
+    returns hashed password as bytes.
+
+    Args:
+        password (str): The password to hash.
+
+    Returns:
+        bytes: The hashed password.
+    """
+    salt: bytes = bcrypt.gensalt()  # Generate a salt
+    hashed_password: bytes = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed_password
+
+
+def _generate_uuid() -> str:
+    """Generates a new uuid and returns it as a string."""
+    return str(uuid4())
 
 
 class Auth:
@@ -17,33 +36,29 @@ class Auth:
         """Initialize the Auth instance with a database instance."""
         self._db = DB()
 
-    def _hash_password(self, password: str) -> bytes:
-        """Hashes a password using bcrypt's hashing algo and
-        returns hashed password as bytes.
-
-        Args:
-            password (str): The password to hash.
-
-        Returns:
-            bytes: The hashed password.
-        """
-        salt: bytes = bcrypt.gensalt()  # Generate a salt
-        hashed_password: bytes = bcrypt.hashpw(password.encode('utf-8'), salt)
-        return hashed_password
-
     def register_user(self, email: str, password: str) -> User:
         """
-        Registers user email
+        Registers a user with the given email and password.
+
+        Args:
+            email (str): The user's email.
+            password (str): The user's password.
+
+        Returns:
+            User: The newly created User object.
+
+        Raises:
+            ValueError: If the user already exists with the given email.
         """
         try:
-            user = self._db.find_user_by(email=email)
-            if user is not None:
+            existing_user = self._db.find_user_by(email=email)
+            if existing_user:
                 raise ValueError(f"User {email} already exists")
         except NoResultFound:
-            hashed_password = self._hash_password(password)
-            return self._db.add_user(email, hashed_password)
-        except InvalidRequestError:
-            raise ValueError("Invalid email")
+            hashed_password = _hash_password(password)
+            new_user = self._db.add_user(
+                email, hashed_password.decode('utf-8'))
+            return new_user
 
     def valid_login(self, email: str, password: str) -> bool:
         """Check if login credentials are valid.
@@ -67,7 +82,3 @@ class Auth:
         except NoResultFound:
             # Return False if no user is found with the provided email
             return False
-
-    def _generate_uuid(self) -> str:
-        """Generates a new UUID and returns it as a string."""
-        return str(uuid.UUID(str(uuid.uuid4())))
