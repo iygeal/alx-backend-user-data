@@ -6,6 +6,7 @@ import bcrypt
 from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
+from uuid import uuid4
 
 
 class Auth:
@@ -75,3 +76,12 @@ class Auth:
         except NoResultFound:
             # Return False if no user is found with the provided email
             return False
+
+    def _generate_uuid(self) -> str:
+        """Generates a new UUID and returns it as a string.
+
+        Returns:
+            str: UUID as string
+        """
+
+        return str(uuid4())
