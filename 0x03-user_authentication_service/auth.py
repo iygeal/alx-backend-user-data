@@ -7,6 +7,7 @@ from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
 import uuid
+from sqlalchemy.exc import InvalidRequestError
 
 
 class Auth:
@@ -51,6 +52,8 @@ class Auth:
         except NoResultFound:
             hashed_password = self._hash_password(password)
             return self._db.add_user(email, hashed_password)
+        except InvalidRequestError:
+            raise ValueError("Invalid email or password")
 
     def valid_login(self, email: str, password: str) -> bool:
         """Check if login credentials are valid.
