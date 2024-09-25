@@ -6,7 +6,7 @@ import bcrypt
 from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
-from uuid import uuid4
+from uuid import UUID
 
 
 class Auth:
@@ -84,4 +84,4 @@ class Auth:
             str: UUID as string
         """
 
-        return str(uuid4())
+        return str(UUID())
