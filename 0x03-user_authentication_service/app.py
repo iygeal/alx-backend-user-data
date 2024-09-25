@@ -37,5 +37,5 @@ def register_user() -> str:
         return jsonify({"message": "email already registered"}), 400
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":4s
     app.run(host="0.0.0.0", port="5000")
