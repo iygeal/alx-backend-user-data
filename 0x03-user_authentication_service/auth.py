@@ -80,3 +80,23 @@ class Auth:
     def _generate_uuid(self) -> str:
         """Generates a new UUID and returns it as a string."""
         return str(uuid.UUID(str(uuid.uuid4())))
+
+    def destroy_session(self, user_id: int) -> None:
+        """Destroys a session by setting session_id to None for a given user.
+
+        Args:
+            user_id (int): The user's ID whose session should be destroyed.
+
+        Returns:
+            None
+        """
+        try:
+            # Find the user by id
+            user = self._db.find_user_by(id=user_id)
+
+            # Set the user's session_id to None
+            self._db.update_user(user.id, session_id=None)
+
+        except NoResultFound:
+            # Return None if no user is found with the provided id
+            return None
